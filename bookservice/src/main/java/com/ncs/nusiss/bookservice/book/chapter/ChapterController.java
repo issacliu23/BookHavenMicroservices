@@ -20,7 +20,7 @@ public class ChapterController {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         if(bookOptional.isPresent()) {
             Book book = bookOptional.get();
-            book.getChapters().add(chapter);
+            book.getChapterList().add(chapter);
             chapter.setBookId(book.getBookId());
             chapterRepository.save(chapter);
             bookRepository.save(book);
