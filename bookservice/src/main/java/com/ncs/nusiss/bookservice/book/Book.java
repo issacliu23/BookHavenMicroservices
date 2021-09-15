@@ -29,7 +29,7 @@ public class Book {
     private String bookId;
     private String authorId;
     @NotNull
-    private String title;
+    private String bookTitle;
     @NotNull
     private String summary;
     @NotEmpty
@@ -42,7 +42,7 @@ public class Book {
     public void addChapter(Chapter c) throws BookNotFoundException {
         if(this.bookId != null) {
             chapterList.add(c);
-            c.setBookId(bookId);
+            c.setBook(this);
         }
         else
             throw new BookNotFoundException();

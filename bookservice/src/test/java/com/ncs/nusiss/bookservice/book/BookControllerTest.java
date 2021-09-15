@@ -1,12 +1,20 @@
 package com.ncs.nusiss.bookservice.book;
 
+import com.ncs.nusiss.bookservice.book.chapter.Chapter;
+import com.ncs.nusiss.bookservice.book.chapter.ChapterService;
+import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
+import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
+import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.io.IOException;
 
 import static com.ncs.nusiss.bookservice.MockData.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,20 +29,18 @@ public class BookControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private BookService bookService;
-
-    // whenPublishBookSuccessShouldReturn200OK
     @Test
     public void whenPublishBookSuccessShouldReturnBookIdAnd200OK() throws Exception {
         String id = "test_id";
         Book request = getMockBook();
         Book response = getMockBook();
         response.setBookId(id);
-        when(bookService.createBook(any())).thenReturn(response);
+        when(bookService.createBook(any(),any())).thenReturn(response);
 
         mockMvc.perform(multipart("/book")
                         .file(getMockImage())
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .param("title", request.getTitle())
+                        .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isOk())
@@ -44,11 +50,11 @@ public class BookControllerTest {
     @Test
     public void whenPublishBookReturnNullShouldReturn500ServerError() throws Exception {
         Book request = getMockBook();
-        when(bookService.createBook(any())).thenReturn(null);
+        when(bookService.createBook(any(),any())).thenReturn(null);
         mockMvc.perform(multipart("/book")
                         .file(getMockImage())
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .param("title", request.getTitle())
+                        .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isInternalServerError());
@@ -58,15 +64,159 @@ public class BookControllerTest {
     @Test
     public void whenPublishBookWithMissingFieldsShouldReturn400BadRequest() throws Exception {
         Book request = getMockBook();
-        request.setTitle(null);
+        request.setBookTitle(null);
         request.setSummary(null);
-        when(bookService.createBook(any())).thenReturn(null);
+        when(bookService.createBook(any(),any())).thenReturn(null);
         mockMvc.perform(multipart("/book")
                         .file(getMockImage())
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .param("title", request.getTitle())
+                        .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenPublishBookAndServiceReturnIncorrectFileExtensionExceptionShouldReturn400BadRequest() throws Exception {
+        Book request = getMockBook();
+        when(bookService.createBook(any(),any())).thenThrow(IncorrectFileExtensionException.class);
+        mockMvc.perform(multipart("/book")
+                        .file(getMockImage())
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("bookTitle", request.getBookTitle())
+                        .param("summary", request.getSummary())
+                        .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenPublishBookAndServiceReturnIncorrectFileSizeExceptionShouldReturn400BadRequest() throws Exception {
+        Book request = getMockBook();
+        when(bookService.createBook(any(),any())).thenThrow(IncorrectImageDimensionsException.class);
+        mockMvc.perform(multipart("/book")
+                        .file(getMockImage())
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("bookTitle", request.getBookTitle())
+                        .param("summary", request.getSummary())
+                        .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenPublishBookAndServiceReturnSizeLimitExceededExceptionShouldReturn400BadRequest() throws Exception {
+        Book request = getMockBook();
+        when(bookService.createBook(any(),any())).thenThrow(SizeLimitExceededException.class);
+        mockMvc.perform(multipart("/book")
+                        .file(getMockImage())
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("bookTitle", request.getBookTitle())
+                        .param("summary", request.getSummary())
+                        .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenAddChapterSuccessfulShouldReturnChapterIdAnd200OK() throws Exception {
+        String mockBookId = "test_bookId";
+        String mockChapterId = "test_chapterId";
+
+        Book mockBook = getMockBook();
+        MockMultipartFile mockChapterFile = getTestPdfFile("chapterFile");
+        mockBook.setBookId(mockBookId);
+        Chapter request = getMockChapter();
+        Chapter response = getMockChapter();
+        response.setBook(mockBook);
+        response.setChapterId(mockChapterId);
+
+        when(bookService.addChapter(mockBookId, request, mockChapterFile)).thenReturn(response);
+        mockMvc.perform(multipart("/book/{bookId}/chapter",mockBookId)
+                        .file(mockChapterFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("chapterTitle", request.getChapterTitle())
+                        .param("chapterNo", request.getChapterNo().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.chapterId").value(mockChapterId));
+
+    }
+    @Test
+    public void whenAddChapterWithNullValueShouldReturn400BadRequest() throws Exception {
+        String mockBookId = "test_bookId";
+        MockMultipartFile mockChapterFile = getTestPdfFile("chapterFile");
+        Chapter request = getMockChapter();
+        request.setChapterNo(null);
+        request.setChapterId(null);
+
+
+        when(bookService.addChapter(mockBookId, request, mockChapterFile)).thenReturn(null);
+        mockMvc.perform(multipart("/book/{bookId}/chapter",mockBookId)
+                        .file(mockChapterFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("chapterTitle", request.getChapterTitle())
+                        .param("chapterNo", ""))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    public void whenAddChapterServiceReturnNullShouldReturn500ServerError() throws Exception {
+        String mockBookId = "test_bookId";
+        String mockChapterId = "test_chapterId";
+
+        Book mockBook = getMockBook();
+        MockMultipartFile mockChapterFile = getTestPdfFile("chapterFile");
+        mockBook.setBookId(mockBookId);
+        Chapter request = getMockChapter();
+        Chapter response = getMockChapter();
+        response.setBook(mockBook);
+        response.setChapterId(mockChapterId);
+
+        when(bookService.addChapter(mockBookId, request, mockChapterFile)).thenReturn(null);
+        mockMvc.perform(multipart("/book/{bookId}/chapter",mockBookId)
+                        .file(mockChapterFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("chapterTitle", request.getChapterTitle())
+                        .param("chapterNo", ""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenAddChapterServiceThrowSizeLimitExceededExceptionShouldReturn400BadRequest() throws Exception {
+        String mockBookId = "test_bookId";
+        String mockChapterId = "test_chapterId";
+
+        Book mockBook = getMockBook();
+        MockMultipartFile mockChapterFile = getTestPdfFile("chapterFile");
+        mockBook.setBookId(mockBookId);
+        Chapter request = getMockChapter();
+        Chapter response = getMockChapter();
+        response.setBook(mockBook);
+        response.setChapterId(mockChapterId);
+
+        when(bookService.addChapter(mockBookId, request, mockChapterFile)).thenThrow(SizeLimitExceededException.class);
+        mockMvc.perform(multipart("/book/{bookId}/chapter",mockBookId)
+                        .file(mockChapterFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("chapterTitle", request.getChapterTitle())
+                        .param("chapterNo", ""))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    public void whenAddChapterServiceThrowBookNotFoundExceptionShouldReturn400BadRequest() throws Exception {
+        String mockBookId = "test_bookId";
+        String mockChapterId = "test_chapterId";
+
+        Book mockBook = getMockBook();
+        MockMultipartFile mockChapterFile = getTestPdfFile("chapterFile");
+        mockBook.setBookId(mockBookId);
+        Chapter request = getMockChapter();
+        Chapter response = getMockChapter();
+        response.setBook(mockBook);
+        response.setChapterId(mockChapterId);
+
+        when(bookService.addChapter(mockBookId, request, mockChapterFile)).thenThrow(BookNotFoundException.class);
+        mockMvc.perform(multipart("/book/{bookId}/chapter",mockBookId)
+                        .file(mockChapterFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("chapterTitle", request.getChapterTitle())
+                        .param("chapterNo", ""))
                 .andExpect(status().isBadRequest());
     }
 }
