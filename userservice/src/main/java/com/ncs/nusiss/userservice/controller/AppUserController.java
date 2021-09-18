@@ -53,7 +53,7 @@ public class AppUserController {
                 DecodedJWT decodedJWT = verifier.verify(refresh_token);
                 String email = decodedJWT.getSubject();
                 AppUser appUser = appUserService.getUser(email);
-                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+                // String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
                 String access_token = JWT.create()
                         .withSubject(appUser.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 100))
