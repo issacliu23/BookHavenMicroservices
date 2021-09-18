@@ -5,8 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ncs.nusiss.userservice.entity.User;
-import com.ncs.nusiss.userservice.service.UserService;
+import com.ncs.nusiss.userservice.entity.AppUser;
+import com.ncs.nusiss.userservice.service.AppUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,19 +27,19 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class UserController {
+public class AppUserController {
 
-    private final UserService userService;
+    private final AppUserService appUserService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok().body(userService.getUsers());
+    public ResponseEntity<List<AppUser>> getUsers() {
+        return ResponseEntity.ok().body(appUserService.getUsers());
     }
 
     @PostMapping("/user/save")
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
+    public ResponseEntity<AppUser> saveUser(@RequestBody AppUser appUser) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
-        return ResponseEntity.created(uri).body(userService.saveUser(user));
+        return ResponseEntity.created(uri).body(appUserService.saveUser(appUser));
     }
 
     @GetMapping("/token/refresh")
@@ -52,13 +52,13 @@ public class UserController {
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(refresh_token);
                 String email = decodedJWT.getSubject();
-                User user = userService.getUser(email);
+                AppUser appUser = appUserService.getUser(email);
                 String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
                 String access_token = JWT.create()
-                        .withSubject(user.getUsername())
+                        .withSubject(appUser.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 100))
                         .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining()))
+                        .withClaim("roles", appUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining()))
                         .sign(algorithm);
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", access_token);
