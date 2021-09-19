@@ -15,18 +15,32 @@ import java.util.Set;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class AppUser implements UserDetails {
 
+    @SequenceGenerator(
+            name = "app_user_sequence",
+            sequenceName = "app_user_sequence",
+            allocationSize = 1
+    )
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "app_user_sequence"
+    )
     private Long id;
     private String email;
     private String password;
+    private Boolean locked = false;
+    private Boolean enabled = false;
+
+    public AppUser(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return new HashSet<>();
+        return new HashSet<GrantedAuthority>();
     }
 
     @Override
@@ -41,7 +55,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !locked;
     }
 
     @Override
@@ -51,7 +65,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
 }

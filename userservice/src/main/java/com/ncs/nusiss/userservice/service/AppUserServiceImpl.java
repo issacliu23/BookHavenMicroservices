@@ -1,6 +1,7 @@
 package com.ncs.nusiss.userservice.service;
 
 import com.ncs.nusiss.userservice.entity.AppUser;
+import com.ncs.nusiss.userservice.entity.ConfirmationToken;
 import com.ncs.nusiss.userservice.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +23,9 @@ import java.util.List;
 public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
     private final AppUserRepository appUserRepository;
+    private final EmailValidator emailValidator;
     private final PasswordEncoder passwordEncoder;
+    private final ConfirmationTokenService confirmationTokenService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -35,10 +40,42 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     }
 
     @Override
+    /*
     public AppUser signUpUser(AppUser appUser) {
+        boolean userExists = appUserRepository.findByEmail(appUser.getEmail()) != null ? true : false;
+        if(userExists) {
+            throw new IllegalStateException("email already taken");
+        }
         log.info("Signing up new User {} to the Database", appUser.getEmail());
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         return appUserRepository.save(appUser);
+    }*/
+    public String signUpUser(AppUser appUser) {
+        boolean isValidEmail = emailValidator.test(appUser.getEmail());
+        if(!isValidEmail) {
+            throw new IllegalStateException("email not valid");
+        }
+        boolean userExists = appUserRepository.findByEmail(appUser.getEmail()) != null ? true : false;
+        if(userExists) {
+            throw new IllegalStateException("email already taken");
+        }
+
+        log.info("Signing up new User {} to the Database", appUser.getEmail());
+        appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
+
+        appUserRepository.save(appUser);
+
+        String token = UUID.randomUUID().toString();
+
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+                token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), appUser
+        );
+
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        // TODO: SEND EMAIL
+
+        return token;
     }
 
     @Override

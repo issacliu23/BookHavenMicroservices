@@ -37,9 +37,13 @@ public class AppUserController {
     }
 
     @PostMapping("/user/sign-up")
-    public ResponseEntity<AppUser> saveUser(@RequestBody AppUser appUser) {
+    /*
+    public ResponseEntity<AppUser> signUpUser(@RequestBody AppUser appUser) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/sign-up").toUriString());
         return ResponseEntity.created(uri).body(appUserService.signUpUser(appUser));
+    }*/
+    public String signUpUser(@RequestBody AppUser appUser) {
+        return appUserService.signUpUser(appUser);
     }
 
     @GetMapping("/token/refresh")
