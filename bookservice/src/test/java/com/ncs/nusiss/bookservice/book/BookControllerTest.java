@@ -173,8 +173,8 @@ public class BookControllerTest {
                         .file(mockChapterFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("chapterTitle", request.getChapterTitle())
-                        .param("chapterNo", ""))
-                .andExpect(status().isBadRequest());
+                        .param("chapterNo", request.getChapterNo().toString()))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -195,7 +195,7 @@ public class BookControllerTest {
                         .file(mockChapterFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("chapterTitle", request.getChapterTitle())
-                        .param("chapterNo", ""))
+                        .param("chapterNo", request.getChapterNo().toString()))
                 .andExpect(status().isBadRequest());
     }
     @Test
@@ -216,7 +216,7 @@ public class BookControllerTest {
                         .file(mockChapterFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("chapterTitle", request.getChapterTitle())
-                        .param("chapterNo", ""))
+                        .param("chapterNo", request.getChapterNo().toString()))
                 .andExpect(status().isBadRequest());
     }
 }

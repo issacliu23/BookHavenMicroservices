@@ -1,6 +1,7 @@
 package com.ncs.nusiss.bookservice.book;
 
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
+import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -12,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
+import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
+import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_NAME;
+
 @RestController
 @RequestMapping(path = "book")
 public class BookController {
@@ -20,7 +24,7 @@ public class BookController {
     private BookService bookService;
 
     @PostMapping
-    public ResponseEntity<?> publishBook(@Valid @ModelAttribute Book book, @RequestParam("image") MultipartFile coverImage) {
+    public ResponseEntity<?> publishBook(@Valid @ModelAttribute Book book, @RequestParam(COVER_IMAGE_FILE_NAME) MultipartFile coverImage) {
         try {
             Book createdBook = bookService.createBook(book, coverImage);
             if (createdBook != null)
@@ -28,13 +32,13 @@ public class BookController {
             else
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        catch (SizeLimitExceededException | IncorrectFileExtensionException | IncorrectImageDimensionsException e) {
+        catch (SizeLimitExceededException | IncorrectFileExtensionException | IncorrectImageDimensionsException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PostMapping("/{bookId}/chapter")
-    public ResponseEntity<?> uploadChapter(@PathVariable(value = "bookId") String bookId, @Valid @ModelAttribute Chapter chapter, @RequestParam("chapterFile") MultipartFile chapterFile) {
+    public ResponseEntity<?> uploadChapter(@PathVariable(value = "bookId") String bookId, @Valid @ModelAttribute Chapter chapter, @RequestParam(CHAPTER_FILE_NAME) MultipartFile chapterFile) {
         try {
             Chapter addedChapter = bookService.addChapter(bookId, chapter, chapterFile);
             if (addedChapter != null)
@@ -42,8 +46,8 @@ public class BookController {
             else
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        catch (Exception e) {
-            return null;
+        catch (SizeLimitExceededException | IncorrectFileExtensionException | BookNotFoundException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

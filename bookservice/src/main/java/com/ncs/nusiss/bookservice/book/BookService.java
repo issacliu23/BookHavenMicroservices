@@ -18,12 +18,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.*;
 
@@ -40,11 +45,11 @@ public class BookService {
     @Autowired
     private GridFsOperations gridFsOperations;
 
-    public Book createBook(Book book, MultipartFile coverImageFile) throws SizeLimitExceededException, IncorrectImageDimensionsException, IncorrectFileExtensionException {
+    public Book createBook(Book book, MultipartFile coverImageFile) throws SizeLimitExceededException, IncorrectImageDimensionsException, IncorrectFileExtensionException, IllegalArgumentException {
         if(book != null && coverImageFile != null) {
             try {
                 if (!COVER_IMAGE_PERMITTED_EXTENSIONS.contains(coverImageFile.getContentType()))
-                    throw new IncorrectFileExtensionException("Filename does not contain extension : " + coverImageFile.getName());
+                    throw new IncorrectFileExtensionException(coverImageFile.getContentType(), COVER_IMAGE_PERMITTED_EXTENSIONS);
 
                 BufferedImage image = ImageIO.read(coverImageFile.getInputStream());
                 if (image.getHeight() != COVER_IMAGE_HEIGHT || image.getWidth() != COVER_IMAGE_WIDTH)
@@ -68,21 +73,41 @@ public class BookService {
             throw new IllegalArgumentException();
     }
 
-    public Chapter addChapter(String bookId, Chapter chapter, MultipartFile chapterFile) throws IOException, BookNotFoundException {
-        Optional<Book> optionalBook = bookRepository.findById(bookId);
-        if(optionalBook.isPresent()) {
-            Book book = optionalBook.get();
-            book.addChapter(chapter);
-            Chapter savedChapter = chapterRepository.insert(chapter);
-            bookRepository.save(book);
-            DBObject metaData = new BasicDBObject();
-            metaData.put("type", "pdf");
-            metaData.put("chapterId", savedChapter.getChapterId());
-            gridFsTemplate.store(chapterFile.getInputStream(), chapterFile.getName(), chapterFile.getContentType(), metaData);
-            return savedChapter;
+//    @Transactional
+//    for transaction to work need to follow this https://stackoverflow.com/questions/51461952/mongodb-v4-0-transaction-mongoerror-transaction-numbers-are-only-allowed-on-a
+    public Chapter addChapter(String bookId, Chapter chapter, MultipartFile chapterFile) throws SizeLimitExceededException, BookNotFoundException, IncorrectFileExtensionException, IllegalArgumentException {
+        if(bookId!= null && chapter != null && chapterFile != null) {
+            try {
+                if(chapterFile.getSize() > CHAPTER_PDF_MAX_SIZE_IN_BYTES)
+                    throw new SizeLimitExceededException("Chapter file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, chapterFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
+                if (!CHAPTER_FILE_PERMITTED_EXTENSIONS.contains(chapterFile.getContentType()))
+                    throw new IncorrectFileExtensionException(chapterFile.getContentType(), CHAPTER_FILE_PERMITTED_EXTENSIONS);
+                Optional<Book> optionalBook = bookRepository.findById(bookId);
+                if (optionalBook.isPresent()) {
+                    Book book = optionalBook.get();
+                    if(book.getChapterList().size() > 0 && book.getChapterList().stream().anyMatch(c-> Objects.equals(c.getChapterNo(), chapter.getChapterNo()))) {
+                        throw new IllegalArgumentException("Chapter number already exist in this book");
+                    }
+                    book.addChapter(chapter);
+                    Chapter savedChapter = chapterRepository.insert(chapter);
+                    bookRepository.save(book);
+                    DBObject metaData = new BasicDBObject();
+                    metaData.put("type", "pdf");
+                    metaData.put("chapterId", savedChapter.getChapterId());
+                    gridFsTemplate.store(chapterFile.getInputStream(), chapterFile.getName(), chapterFile.getContentType(), metaData);
+                    return savedChapter;
+                } else
+                    throw new BookNotFoundException();
+            } catch (IOException e) {
+                if (e instanceof SizeLimitExceededException) {
+                    throw new SizeLimitExceededException("Chapter file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, chapterFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
+                }
+                logger.error(e.getMessage());
+                return null;
+            }
         }
         else
-            throw new BookNotFoundException();
+            throw new IllegalArgumentException();
 
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
+import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_NAME;
 import static com.ncs.nusiss.bookservice.MockData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,6 +30,7 @@ public class BookServiceTest {
     private BookRepository bookRepository;
     @MockBean
     private ChapterRepository chapterRepository;
+
     @Test
     public void whenCreateBookShouldReturnBookWithId() throws IOException, IncorrectImageDimensionsException, IncorrectFileExtensionException {
         String id = "test_id";
@@ -62,7 +65,7 @@ public class BookServiceTest {
         mockResponse.setBookId(id);
         when(bookRepository.insert(any(Book.class))).thenReturn(mockResponse);
         assertThrows(IncorrectFileExtensionException.class, () -> {
-            bookService.createBook(request, getTestPdfFile("image"));
+            bookService.createBook(request, getTestPdfFile(COVER_IMAGE_FILE_NAME));
         });
     }
 
@@ -90,29 +93,77 @@ public class BookServiceTest {
     }
 
     @Test
-    public void whenAddChapterSuccessShouldReturnChapterWithId() throws BookNotFoundException, IOException {
+    public void whenAddChapterSuccessShouldReturnChapterWithId() throws BookNotFoundException, IOException, IncorrectFileExtensionException {
         String bookId = "bookId", chapterId ="chapterId";
+        Chapter request = getMockChapter();
+
         Book mockBook = getMockBook();
         mockBook.setBookId(bookId);
         when(bookRepository.findById(any())).thenReturn(Optional.of(mockBook));
 
-        Chapter request = getMockChapter();
-        mockBook.addChapter(request);
         Chapter response = getMockChapter();
 
         response.setChapterId(chapterId);
         when(chapterRepository.insert(any(Chapter.class))).thenReturn(response);
         when(bookRepository.save(any())).thenReturn(mockBook);
 
-        Chapter returnedChapter = bookService.addChapter(bookId, request, getTestPdfFile("chapterFile"));
+        Chapter returnedChapter = bookService.addChapter(bookId, request, getTestPdfFile(CHAPTER_FILE_NAME));
         assertEquals(request.getChapterNo(), returnedChapter.getChapterNo());
         assertEquals(request.getChapterTitle(), returnedChapter.getChapterTitle());
         assertEquals(chapterId, returnedChapter.getChapterId());
 
     }
-    // whenAddChapterAndBookNotFoundShouldThrowBookNotFoundException
-    // whenAddChapterAndPdfFileExceedSizeLimitShouldThrowSizeLimitException
-    // whenAddChapterWithNullValuesShouldThrowIllegalArgumentException
+    @Test
+    public void whenAddChapterAndBookNotFoundShouldThrowBookNotFoundException() {
+        String bookId = "bookId";
+        Chapter request = getMockChapter();
+        when(bookRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(BookNotFoundException.class, () -> {
+            bookService.addChapter(bookId, request, getTestPdfFile(CHAPTER_FILE_NAME));
+        });
+    }
+
+    @Test
+    public void whenAddChapterAndPdfFileExceedSizeLimitShouldThrowSizeLimitException() {
+        String bookId = "bookId";
+        Chapter request = getMockChapter();
+        when(bookRepository.findById(any())).thenReturn(Optional.empty());
+        assertThrows(SizeLimitExceededException.class, () -> {
+            bookService.addChapter(bookId, request, getMoreThan2MBPdfFile(CHAPTER_FILE_NAME));
+        });
+    }
+
+    @Test
+    public void whenAddChapterWithNullValuesShouldThrowIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookService.addChapter(null, null, null);
+        });
+    }
+
+    @Test
+    public void whenAddChapterWithExistedChapterNoShouldThrowIllegalArgumentException() throws BookNotFoundException, IOException, IncorrectFileExtensionException {
+        String bookId = "bookId", chapterId ="chapterId";
+        Book mockBook = getMockBook();
+        mockBook.setBookId(bookId);
+        Chapter existedChapter = getMockChapter();
+        existedChapter.setChapterId("existedId");
+        mockBook.addChapter(existedChapter);
+        when(bookRepository.findById(any())).thenReturn(Optional.of(mockBook));
+
+        Chapter request = getMockChapter();
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookService.addChapter(bookId, request, getTestPdfFile(CHAPTER_FILE_NAME));
+        });
+    }
+
+    @Test
+    public void whenAddChapterWithWrongFileFormatShouldThrowIncorrectFileExtensionException() {
+        String bookId = "bookId";
+        Chapter request = getMockChapter();
+        assertThrows(IncorrectFileExtensionException.class, () -> {
+            bookService.addChapter(bookId, request, getMockImage());
+        });
+    }
 
 
 }
