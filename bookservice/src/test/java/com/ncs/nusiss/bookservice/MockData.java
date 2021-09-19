@@ -18,6 +18,7 @@ public class MockData {
         Book book = new Book();
         book.setBookTitle("test title");
         book.setSummary("test summary");
+        book.setPointsRequiredForChapter(0);
         book.setGenreList(List.of(Genre.Comedy,Genre.Fantasy));
         book.setAuthorId("authorId");
         return book;

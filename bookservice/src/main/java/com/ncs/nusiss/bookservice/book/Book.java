@@ -34,6 +34,8 @@ public class Book {
     private String summary;
     @NotEmpty
     private List<Genre> genreList = new ArrayList<>();
+    @NotNull
+    private Integer pointsRequiredForChapter;
     @DBRef(lazy = true)
     private List<Chapter> chapterList = new ArrayList<>();
     private Binary coverImage;

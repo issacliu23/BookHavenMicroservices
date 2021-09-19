@@ -42,6 +42,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bookId").value(id));
@@ -56,6 +57,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isInternalServerError());
 
@@ -72,6 +74,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isBadRequest());
     }
@@ -85,6 +88,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isBadRequest());
     }
@@ -98,6 +102,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isBadRequest());
     }
@@ -111,6 +116,7 @@ public class BookControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .param("bookTitle", request.getBookTitle())
                         .param("summary", request.getSummary())
+                        .param("pointsRequiredForChapter", request.getPointsRequiredForChapter().toString())
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isBadRequest());
     }
