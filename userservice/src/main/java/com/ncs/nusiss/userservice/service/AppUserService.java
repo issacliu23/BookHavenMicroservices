@@ -5,7 +5,7 @@ import com.ncs.nusiss.userservice.entity.AppUser;
 import java.util.List;
 
 public interface AppUserService {
-    AppUser saveUser(AppUser appUser);
+    AppUser signUpUser(AppUser appUser);
     AppUser getUser(String email);
     List<AppUser> getUsers();
 }

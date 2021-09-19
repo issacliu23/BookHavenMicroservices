@@ -35,8 +35,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     }
 
     @Override
-    public AppUser saveUser(AppUser appUser) {
-        log.info("Saving new User {} to the Database", appUser.getEmail());
+    public AppUser signUpUser(AppUser appUser) {
+        log.info("Signing up new User {} to the Database", appUser.getEmail());
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         return appUserRepository.save(appUser);
     }

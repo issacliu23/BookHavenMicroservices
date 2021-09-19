@@ -26,10 +26,10 @@ public class UserServiceApplication {
 	@Bean
 	CommandLineRunner run (AppUserService appUserService) {
 		return args -> {
-			appUserService.saveUser(new AppUser(null, "johndoe@gmail.com", "1234"));
-			appUserService.saveUser(new AppUser(null, "joebiden@gmail.com", "1234"));
-			appUserService.saveUser(new AppUser(null, "donaldtrump@gmail.com", "1234"));
-			appUserService.saveUser(new AppUser(null, "willsmith@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser(null, "johndoe@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser(null, "joebiden@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser(null, "donaldtrump@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser(null, "willsmith@gmail.com", "1234"));
 		};
 	}
 
