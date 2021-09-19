@@ -75,7 +75,31 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
         // TODO: SEND EMAIL
 
+
         return token;
+    }
+
+    @Transactional
+    @Override
+    public String confirmToken(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token).orElseThrow(() ->
+                new IllegalStateException("Token not found"));
+
+        if(confirmationToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("Email already confirmed");
+        }
+
+        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+
+        if(expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Token expired");
+        }
+
+        confirmationTokenService.setConfirmedAt(token);
+
+        appUserRepository.enableAppUser(confirmationToken.getAppUser().getEmail());
+
+        return "confirmed";
     }
 
     @Override

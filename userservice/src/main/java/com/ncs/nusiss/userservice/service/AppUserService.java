@@ -9,4 +9,5 @@ public interface AppUserService {
     String signUpUser(AppUser appUser);
     AppUser getUser(String email);
     List<AppUser> getUsers();
+    String confirmToken(String token);
 }

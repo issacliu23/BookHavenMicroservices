@@ -46,6 +46,11 @@ public class AppUserController {
         return appUserService.signUpUser(appUser);
     }
 
+    @GetMapping("/user/sign-up/confirm")
+    public String confirm(@RequestParam("token") String token) {
+        return appUserService.confirmToken(token);
+    }
+
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
