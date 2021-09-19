@@ -6,6 +6,8 @@ import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
+import org.bson.BsonBinarySubType;
+import org.bson.types.Binary;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,10 +19,10 @@ import java.util.Optional;
 import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
 import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_NAME;
 import static com.ncs.nusiss.bookservice.MockData.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.ncs.nusiss.bookservice.MockData.getMockImage;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class BookServiceTest {
@@ -31,8 +33,9 @@ public class BookServiceTest {
     @MockBean
     private ChapterRepository chapterRepository;
 
+    //region - Create Book Method
     @Test
-    public void whenCreateBookShouldReturnBookWithId() throws IOException, IncorrectImageDimensionsException, IncorrectFileExtensionException {
+    public void whenCreateBookShouldReturnBookWithId() throws Exception {
         String id = "test_id";
         Book request = getMockBook();
         Book mockResponse = getMockBook();
@@ -58,7 +61,7 @@ public class BookServiceTest {
     }
 
     @Test
-    public void whenCreateBookWithWrongExtensionImageShouldThrowIncorrectFileExtensionException() {
+    public void whenCreateBookWithInvalidImageShouldThrowExceptions() {
         String id = "test_id";
         Book request = getMockBook();
         Book mockResponse = getMockBook();
@@ -67,31 +70,15 @@ public class BookServiceTest {
         assertThrows(IncorrectFileExtensionException.class, () -> {
             bookService.createBook(request, getTestPdfFile(COVER_IMAGE_FILE_NAME));
         });
-    }
-
-    @Test
-    public void whenCreateBookWithWrongDimensionImageShouldThrowIncorrectImageDimensionsException() {
-        String id = "test_id";
-        Book request = getMockBook();
-        Book mockResponse = getMockBook();
-        mockResponse.setBookId(id);
-        when(bookRepository.insert(any(Book.class))).thenReturn(mockResponse);
         assertThrows(IncorrectImageDimensionsException.class, () -> {
             bookService.createBook(request, getIncorrectHeightAndWidthImage());
         });
-    }
-    @Test
-    public void whenCreateBookWithExceedSizeImageShouldThrowSizeLimitExceededExceptionException() {
-        String id = "test_id";
-        Book request = getMockBook();
-        Book mockResponse = getMockBook();
-        mockResponse.setBookId(id);
-        when(bookRepository.insert(any(Book.class))).thenReturn(mockResponse);
         assertThrows(SizeLimitExceededException.class, () -> {
             bookService.createBook(request, getExceedLimitSizeImage());
         });
     }
-
+    //endregion
+    //region - Add Chapter Method
     @Test
     public void whenAddChapterSuccessShouldReturnChapterWithId() throws BookNotFoundException, IOException, IncorrectFileExtensionException {
         String bookId = "bookId", chapterId ="chapterId";
@@ -164,6 +151,56 @@ public class BookServiceTest {
             bookService.addChapter(bookId, request, getMockImage());
         });
     }
+    //endregion
+    //region - Update Book Method
+    @Test
+    public void whenUpdateBookSuccessfulShouldReturnTrue() throws Exception {
+        String bookId = "bookId";
+        Binary coverImage = new Binary(BsonBinarySubType.BINARY, getMockImage().getBytes());
+        Book request = getMockBook();
+        request.setBookId(bookId);
+        request.setCoverImage(coverImage);
 
+        Book mockResponse = getMockBook();
+        mockResponse.setBookId(bookId);
+        mockResponse.setCoverImage(coverImage);
+
+        when(bookRepository.findById(any())).thenReturn(Optional.of(mockResponse));
+        when(bookRepository.save(any(Book.class))).thenReturn(mockResponse);
+        Boolean isUpdated = bookService.updateBook(bookId, request, getMockImage());
+        verify(bookRepository,times(1)).save(any());
+        assertTrue(isUpdated);
+        assertEquals(request.getBookTitle(), mockResponse.getBookTitle());
+        assertEquals(request.getSummary(), mockResponse.getSummary());
+        assertEquals(request.getAuthorId(), mockResponse.getAuthorId());
+        assertTrue(request.getGenreList().equals(mockResponse.getGenreList()));
+    }
+    @Test
+    public void whenUpdateBookWithNullShouldThrowIllegalArgumentException() throws Exception{
+        String bookId = "bookId";
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookService.updateBook(bookId, null, getMockImage());
+        });
+    }
+    @Test
+    public void whenUpdateBookWithInvalidImageShouldThrowExceptions() throws IOException {
+        String bookId = "bookId";
+        Book request = getMockBook();
+
+        Book mockResponse = getMockBook();
+        mockResponse.setBookId(bookId);
+        mockResponse.setCoverImage(new Binary(BsonBinarySubType.BINARY,getMockImage().getBytes()));
+        when(bookRepository.findById(any())).thenReturn(Optional.of(mockResponse));
+        assertThrows(IncorrectFileExtensionException.class, () -> {
+            bookService.updateBook(bookId, request, getTestPdfFile(COVER_IMAGE_FILE_NAME));
+        });
+        assertThrows(SizeLimitExceededException.class, () -> {
+            bookService.updateBook(bookId, request, getExceedLimitSizeImage());
+        });
+        assertThrows(IncorrectImageDimensionsException.class, () -> {
+            bookService.updateBook(bookId, request, getIncorrectHeightAndWidthImage());
+        });
+    }
+    //endregion
 
 }

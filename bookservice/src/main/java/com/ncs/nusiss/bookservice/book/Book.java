@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -48,5 +49,26 @@ public class Book {
         }
         else
             throw new BookNotFoundException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+
+        Book book = (Book) o;
+        // field comparison
+        return Objects.equals(bookId, book.bookId)
+                && Objects.equals(authorId, book.authorId)
+                && Objects.equals(bookTitle, book.bookTitle)
+                && Objects.equals(summary, book.summary)
+                && genreList.equals(book.genreList)
+                && Objects.equals(pointsRequiredForChapter, book.pointsRequiredForChapter)
+                && coverImage.equals(book.coverImage);
+
     }
 }

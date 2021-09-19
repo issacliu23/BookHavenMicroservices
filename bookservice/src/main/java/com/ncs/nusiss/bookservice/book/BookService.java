@@ -2,7 +2,6 @@ package com.ncs.nusiss.bookservice.book;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.ncs.nusiss.bookservice.BookServiceConstants;
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
 import com.ncs.nusiss.bookservice.book.chapter.ChapterRepository;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
@@ -11,24 +10,19 @@ import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.*;
 
@@ -48,16 +42,7 @@ public class BookService {
     public Book createBook(Book book, MultipartFile coverImageFile) throws SizeLimitExceededException, IncorrectImageDimensionsException, IncorrectFileExtensionException, IllegalArgumentException {
         if(book != null && coverImageFile != null) {
             try {
-                if (!COVER_IMAGE_PERMITTED_EXTENSIONS.contains(coverImageFile.getContentType()))
-                    throw new IncorrectFileExtensionException(coverImageFile.getContentType(), COVER_IMAGE_PERMITTED_EXTENSIONS);
-
-                BufferedImage image = ImageIO.read(coverImageFile.getInputStream());
-                if (image.getHeight() != COVER_IMAGE_HEIGHT || image.getWidth() != COVER_IMAGE_WIDTH)
-                    throw new IncorrectImageDimensionsException(image.getHeight(), image.getWidth(), COVER_IMAGE_HEIGHT, COVER_IMAGE_WIDTH);
-
-                if (coverImageFile.getSize() > COVER_IMAGE_MAX_SIZE_IN_BYTES)
-                    throw new SizeLimitExceededException("Cover image file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, coverImageFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
-
+                verifyCoverImage(coverImageFile);
                 book.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImageFile.getBytes()));
                 return bookRepository.insert(book);
             }
@@ -73,15 +58,12 @@ public class BookService {
             throw new IllegalArgumentException();
     }
 
-//    @Transactional
+    //    @Transactional
 //    for transaction to work need to follow this https://stackoverflow.com/questions/51461952/mongodb-v4-0-transaction-mongoerror-transaction-numbers-are-only-allowed-on-a
     public Chapter addChapter(String bookId, Chapter chapter, MultipartFile chapterFile) throws SizeLimitExceededException, BookNotFoundException, IncorrectFileExtensionException, IllegalArgumentException {
         if(bookId!= null && chapter != null && chapterFile != null) {
             try {
-                if(chapterFile.getSize() > CHAPTER_PDF_MAX_SIZE_IN_BYTES)
-                    throw new SizeLimitExceededException("Chapter file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, chapterFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
-                if (!CHAPTER_FILE_PERMITTED_EXTENSIONS.contains(chapterFile.getContentType()))
-                    throw new IncorrectFileExtensionException(chapterFile.getContentType(), CHAPTER_FILE_PERMITTED_EXTENSIONS);
+                verifyChapterFile(chapterFile);
                 Optional<Book> optionalBook = bookRepository.findById(bookId);
                 if (optionalBook.isPresent()) {
                     Book book = optionalBook.get();
@@ -108,6 +90,46 @@ public class BookService {
         }
         else
             throw new IllegalArgumentException();
-
     }
+
+    public Boolean updateBook(String bookId, Book newBook, MultipartFile coverImage) throws BookNotFoundException, IncorrectFileExtensionException, IncorrectImageDimensionsException, IOException {
+        if(newBook == null)
+            throw new IllegalArgumentException();
+
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if(optionalBook.isPresent()) {
+            verifyCoverImage(coverImage);
+            newBook.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImage.getBytes()));
+            Book book = optionalBook.get();
+            book.setBookTitle(newBook.getBookTitle());
+            book.setSummary(newBook.getSummary());
+            book.setPointsRequiredForChapter(newBook.getPointsRequiredForChapter());
+            book.setGenreList(newBook.getGenreList());
+            book.setCoverImage(newBook.getCoverImage());
+            Book savedBook = bookRepository.save(book);
+            return savedBook.equals(newBook);
+        }
+        else
+            throw new BookNotFoundException();
+    }
+
+    private void verifyCoverImage(MultipartFile coverImageFile) throws IncorrectFileExtensionException, IOException, IncorrectImageDimensionsException {
+        if (!COVER_IMAGE_PERMITTED_EXTENSIONS.contains(coverImageFile.getContentType()))
+            throw new IncorrectFileExtensionException(coverImageFile.getContentType(), COVER_IMAGE_PERMITTED_EXTENSIONS);
+
+        BufferedImage image = ImageIO.read(coverImageFile.getInputStream());
+        if (image.getHeight() != COVER_IMAGE_HEIGHT || image.getWidth() != COVER_IMAGE_WIDTH)
+            throw new IncorrectImageDimensionsException(image.getHeight(), image.getWidth(), COVER_IMAGE_HEIGHT, COVER_IMAGE_WIDTH);
+
+        if (coverImageFile.getSize() > COVER_IMAGE_MAX_SIZE_IN_BYTES)
+            throw new SizeLimitExceededException("Cover image file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, coverImageFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
+    }
+
+    private void verifyChapterFile(MultipartFile chapterFile) throws SizeLimitExceededException, IncorrectFileExtensionException {
+        if(chapterFile.getSize() > CHAPTER_PDF_MAX_SIZE_IN_BYTES)
+            throw new SizeLimitExceededException("Chapter file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, chapterFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
+        if (!CHAPTER_FILE_PERMITTED_EXTENSIONS.contains(chapterFile.getContentType()))
+            throw new IncorrectFileExtensionException(chapterFile.getContentType(), CHAPTER_FILE_PERMITTED_EXTENSIONS);
+    }
+
 }
