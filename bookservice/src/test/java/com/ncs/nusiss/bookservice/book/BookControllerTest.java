@@ -1,19 +1,28 @@
 package com.ncs.nusiss.bookservice.book;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 import static com.ncs.nusiss.bookservice.MockData.*;
+import static com.ncs.nusiss.bookservice.common.CommonMethods.asJsonString;
+import static com.ncs.nusiss.bookservice.common.CommonMethods.getMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -22,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookController.class)
 public class BookControllerTest {
+    private ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -321,5 +331,41 @@ public class BookControllerTest {
                         .param("genreList", request.getGenreList().stream().map(Genre::name).toArray(String[]::new)))
                 .andExpect(status().isBadRequest());
     }
+    //endregion
+
+    //region - GetAllBooks
+    @Test
+    public void whenGetAllBooksSuccessShouldReturnListAnd200OK() throws Exception {
+        List<BookDTO> responseList = getListOfMockBookDTOs();
+        when(bookService.getBooks(null)).thenReturn(responseList);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        List<BookDTO> returnedBooks = getMapper().readValue(result.getResponse().getContentAsString(), new TypeReference<List<BookDTO>>(){});
+        assertEquals(returnedBooks.size(), responseList.size());
+    }
+    @Test
+    public void whenGetAllBooksWithCriteriaShouldReturnListAnd200OK() throws Exception {
+        String bookTitle = "ABC";
+        BookCriteria request = new BookCriteria();
+        request.setBookTitle(bookTitle);
+        List<BookDTO> responseList = getListOfMockBookDTOs();
+        getListOfMockBookDTOs().forEach(b -> b.setBookTitle(bookTitle));
+        when(bookService.getBooks(request)).thenReturn(responseList);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(request))
+                        .characterEncoding("utf-8")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        List<BookDTO> returnedBooks = getMapper().readValue(result.getResponse().getContentAsString(), new TypeReference<List<BookDTO>>(){});
+        assertEquals(returnedBooks.size(), responseList.size());
+    }
+
     //endregion
 }

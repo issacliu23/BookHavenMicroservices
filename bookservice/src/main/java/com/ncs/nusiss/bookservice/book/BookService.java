@@ -7,9 +7,12 @@ import com.ncs.nusiss.bookservice.book.chapter.ChapterRepository;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +24,18 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.*;
 
 @Service
 public class BookService {
     private final Logger logger = LoggerFactory.getLogger(BookService.class);
+    private final ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private BookRepository bookRepository;
     @Autowired
@@ -113,6 +120,24 @@ public class BookService {
             throw new BookNotFoundException();
     }
 
+    public List<BookDTO> getBooks(BookCriteria criteria) {
+        QBook qBook = new QBook("book");
+        BooleanBuilder predicate = new BooleanBuilder();
+        if(criteria != null) {
+            predicate.or(qBook.genreList.any().in(criteria.getGenreList()));
+            if(criteria.getAuthorId() != null)
+                predicate.or(qBook.authorId.eq(criteria.getAuthorId()));
+            if(criteria.getBookTitle() != null)
+                predicate.or(qBook.bookTitle.containsIgnoreCase(criteria.getBookTitle()));
+            if(criteria.getAuthorName() != null)
+                predicate.or(qBook.authorName.containsIgnoreCase(criteria.getAuthorName()));
+        }
+        List<Book> books = (List<Book>) bookRepository.findAll(predicate);
+        return books.stream()
+                .map(book -> modelMapper.map(book, BookDTO.class))
+                .collect(Collectors.toList());
+    }
+
     private void verifyCoverImage(MultipartFile coverImageFile) throws IncorrectFileExtensionException, IOException, IncorrectImageDimensionsException {
         if (!COVER_IMAGE_PERMITTED_EXTENSIONS.contains(coverImageFile.getContentType()))
             throw new IncorrectFileExtensionException(coverImageFile.getContentType(), COVER_IMAGE_PERMITTED_EXTENSIONS);
@@ -131,5 +156,6 @@ public class BookService {
         if (!CHAPTER_FILE_PERMITTED_EXTENSIONS.contains(chapterFile.getContentType()))
             throw new IncorrectFileExtensionException(chapterFile.getContentType(), CHAPTER_FILE_PERMITTED_EXTENSIONS);
     }
+
 
 }

@@ -5,6 +5,7 @@ import com.ncs.nusiss.bookservice.book.chapter.ChapterRepository;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
+import com.querydsl.core.types.Predicate;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
@@ -202,5 +204,38 @@ public class BookServiceTest {
         });
     }
     //endregion
+    //region - Get All Books Method
+    @Test
+    public void whenGetBooksWithNoCriteriaShouldReturnList() {
+        List<Book> mockResponse = getListOfMockBooks();
+        when(bookRepository.findAll(any(Predicate.class))).thenReturn(mockResponse);
+        List<BookDTO> books = bookService.getBooks(null);
+        assertEquals(mockResponse.size(), books.size());
+        for(int i = 0; i< books.size(); i++) {
+            assertEquals(mockResponse.get(i).getBookTitle(),books.get(i).getBookTitle());
+            assertEquals(mockResponse.get(i).getSummary(),books.get(i).getSummary());
+            assertEquals(mockResponse.get(i).getPointsRequiredForChapter(),books.get(i).getPointsRequiredForChapter());
+            assertEquals(mockResponse.get(i).getGenreList(),books.get(i).getGenreList());
+            assertEquals(mockResponse.get(i).getAuthorName(),books.get(i).getAuthorName());
+        }
+    }
+    @Test
+    public void whenGetBooksWithCriteriaShouldReturnList() {
+        BookCriteria criteria = new BookCriteria();
+        String bookTitle = "ABC";
+        criteria.setBookTitle(bookTitle);
+        List<Book> mockResponse = getListOfMockBooks();
+        mockResponse.forEach(b -> b.setBookTitle(bookTitle));
+        when(bookRepository.findAll(any(Predicate.class))).thenReturn(mockResponse);
+        List<BookDTO> books = bookService.getBooks(criteria);
+        assertEquals(mockResponse.size(), books.size());
+        for(int i = 0; i< books.size(); i++) {
+            assertEquals(mockResponse.get(i).getBookTitle(),books.get(i).getBookTitle());
+            assertEquals(mockResponse.get(i).getSummary(),books.get(i).getSummary());
+            assertEquals(mockResponse.get(i).getPointsRequiredForChapter(),books.get(i).getPointsRequiredForChapter());
+            assertEquals(mockResponse.get(i).getGenreList(),books.get(i).getGenreList());
+            assertEquals(mockResponse.get(i).getAuthorName(),books.get(i).getAuthorName());
+        }
+    }
 
 }

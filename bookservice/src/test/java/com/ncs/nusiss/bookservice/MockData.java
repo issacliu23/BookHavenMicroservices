@@ -1,19 +1,23 @@
 package com.ncs.nusiss.bookservice;
 
 import com.ncs.nusiss.bookservice.book.Book;
+import com.ncs.nusiss.bookservice.book.BookDTO;
 import com.ncs.nusiss.bookservice.book.Genre;
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_NAME;
 
 public class MockData {
+    private final static ModelMapper modelMapper = new ModelMapper();
     public static Book getMockBook() {
         Book book = new Book();
         book.setBookTitle("test title");
@@ -21,7 +25,24 @@ public class MockData {
         book.setPointsRequiredForChapter(0);
         book.setGenreList(List.of(Genre.Comedy,Genre.Fantasy));
         book.setAuthorId("authorId");
+        book.setAuthorName("John Doe");
         return book;
+    }
+
+    public static List<Book> getListOfMockBooks() {
+        List<Book> bookList = new ArrayList<>();
+        Book book1 = getMockBook();
+        Book book2 = getMockBook();
+        return bookList;
+    }
+
+    public static List<BookDTO> getListOfMockBookDTOs() {
+        List<BookDTO> bookList = new ArrayList<>();
+        Book book1 = getMockBook();
+        Book book2 = getMockBook();
+        bookList.add(modelMapper.map(book1, BookDTO.class));
+        bookList.add(modelMapper.map(book2, BookDTO.class));
+        return bookList;
     }
 
     public static Chapter getMockChapter() {

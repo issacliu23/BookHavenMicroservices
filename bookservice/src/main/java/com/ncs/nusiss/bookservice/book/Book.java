@@ -2,6 +2,7 @@ package com.ncs.nusiss.bookservice.book;
 
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
+import com.querydsl.core.annotations.QueryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,11 +25,13 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@QueryEntity
 @Document
 public class Book {
     @Id
     private String bookId;
     private String authorId;
+    private String authorName;
     @NotNull
     private String bookTitle;
     @NotNull
