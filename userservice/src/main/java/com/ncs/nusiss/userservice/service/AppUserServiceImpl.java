@@ -39,6 +39,9 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         if(appUser == null) {
             log.error("User not found in the Database");
             throw new UsernameNotFoundException("User not found in the Database");
+        } if(!appUser.isEnabled()) {
+            log.error("User is Disabled");
+            throw new UsernameNotFoundException("User is Disabled");
         } else {
             log.info("User found in the Database: {}", email);
         }
