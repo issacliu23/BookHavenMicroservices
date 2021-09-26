@@ -41,7 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(POST, "/api/login/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/user/sign-up/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/api/user/sign-up/**").permitAll();
-        http.authorizeRequests().antMatchers(GET, "/api/users/**").permitAll();
+        http.authorizeRequests().antMatchers(GET, "/api/users/**").authenticated();
         http.authorizeRequests().antMatchers(GET, "/api/token/refresh/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
