@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.io.InputStream;
 
 @Data
 @Document
@@ -24,4 +25,5 @@ public class Chapter {
     private String chapterTitle;
     @NotNull
     private Integer chapterNo;
+    private InputStream stream;
 }
