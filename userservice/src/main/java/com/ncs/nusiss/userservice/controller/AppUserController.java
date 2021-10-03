@@ -31,6 +31,16 @@ public class AppUserController {
 
     private final AppUserService appUserService;
 
+    @GetMapping("/home")
+    public String home(HttpServletRequest response) {
+        return "index";
+    }
+
+    @GetMapping("/user/profile")
+    public ResponseEntity<AppUser> getUser(@RequestParam("email") String email) {
+        return ResponseEntity.ok().body(appUserService.getUser(email));
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<AppUser>> getUsers() {
         return ResponseEntity.ok().body(appUserService.getUsers());
