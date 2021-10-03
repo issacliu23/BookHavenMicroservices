@@ -52,24 +52,4 @@ public class ChapterService {
         return chapter;
     }
 
-//
-//    public Chapter getChapter(String chapterId) throws IllegalStateException, IOException {
-//        Chapter chapter = new Chapter();
-//        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(chapterId)));
-//        chapter.setStream(operations.getResource(file).getInputStream());
-//        chapter.setChapterId(file.getMetadata().get("chapterId").toString());
-//        chapter.setBookId(file.getMetadata().get("bookId").toString());
-//        return chapter;
-//    }
-
-//    public Chapter getChapter(String chapterId) throws IllegalStateException, IOException {
-//        Chapter chapter = new Chapter();
-//        Optional<Chapter> chapterOptional = chapterRepository.findById(chapterId);
-//        if(chapterOptional.isPresent()) {
-//            chapter = chapterOptional.get();
-//            GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(chapter.getChapterContentId())));
-//            chapter.setStream(operations.getResource(file).getInputStream());
-//        }
-//        return chapter;
-//    }
 }
