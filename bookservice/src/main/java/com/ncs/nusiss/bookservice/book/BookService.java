@@ -152,7 +152,7 @@ public class BookService {
 
     private void verifyChapterFile(MultipartFile chapterFile) throws SizeLimitExceededException, IncorrectFileExtensionException {
         if(chapterFile.getSize() > CHAPTER_PDF_MAX_SIZE_IN_BYTES)
-            throw new SizeLimitExceededException("Chapter file size exceeded " + COVER_IMAGE_MAX_SIZE_IN_BYTES, chapterFile.getSize(), COVER_IMAGE_MAX_SIZE_IN_BYTES);
+            throw new SizeLimitExceededException("Chapter file size exceeded " + CHAPTER_PDF_MAX_SIZE_IN_BYTES, chapterFile.getSize(), CHAPTER_PDF_MAX_SIZE_IN_BYTES);
         if (!CHAPTER_FILE_PERMITTED_EXTENSIONS.contains(chapterFile.getContentType()))
             throw new IncorrectFileExtensionException(chapterFile.getContentType(), CHAPTER_FILE_PERMITTED_EXTENSIONS);
     }
