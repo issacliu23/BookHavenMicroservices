@@ -16,9 +16,8 @@ import java.math.BigDecimal;
 public class TransactionHistory extends Auditable {
     @Id
     private String transactionId;
-    private BigDecimal cashDeducted;
-    private Double pointsDeducted;
-    private Double pointsAwarded;
+    private BigDecimal cashInvolved;
+    private Integer pointsInvolved;
     private TransactionType transactionType;
     private String referenceId;
 }
