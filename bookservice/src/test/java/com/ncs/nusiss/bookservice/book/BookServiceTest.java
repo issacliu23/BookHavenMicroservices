@@ -116,7 +116,9 @@ public class BookServiceTest {
     public void whenAddChapterAndPdfFileExceedSizeLimitShouldThrowSizeLimitException() {
         String bookId = "bookId";
         Chapter request = getMockChapter();
-        when(bookRepository.findById(any())).thenReturn(Optional.empty());
+        Book mockBook = getMockBook();
+        mockBook.setBookId(bookId);
+        when(bookRepository.findById(any())).thenReturn(Optional.of(mockBook));
         assertThrows(SizeLimitExceededException.class, () -> {
             bookService.addChapter(bookId, request, getMoreThan2MBPdfFile(CHAPTER_FILE_NAME));
         });

@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,6 +45,9 @@ public class Book {
     @DBRef(lazy = true)
     private List<Chapter> chapterList = new ArrayList<>();
     private Binary coverImage;
+    private LocalDate createdDate = LocalDate.now();
+    private LocalDate updatedDate = LocalDate.now();
+
     // status
 
     public void addChapter(Chapter c) throws BookNotFoundException {

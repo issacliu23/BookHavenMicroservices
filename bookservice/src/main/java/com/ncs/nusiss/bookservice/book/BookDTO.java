@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,4 +25,7 @@ public class BookDTO {
     private List<Genre> genreList = new ArrayList<>();
     private Integer pointsRequiredForChapter;
     private Binary coverImage;
+    private Double review = 1.0;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
 }

@@ -5,6 +5,8 @@ import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_N
 @RestController
 @RequestMapping(path = "book")
 public class BookController {
+    private final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     @Autowired
     private BookService bookService;

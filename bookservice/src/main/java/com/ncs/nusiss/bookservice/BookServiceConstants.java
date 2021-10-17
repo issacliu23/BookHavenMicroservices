@@ -13,5 +13,5 @@ public final class BookServiceConstants {
 
     public static final String CHAPTER_FILE_NAME = "chapterFile";
     public static final List<String> CHAPTER_FILE_PERMITTED_EXTENSIONS = new ArrayList<>(List.of("application/pdf"));
-    public static final long CHAPTER_PDF_MAX_SIZE_IN_BYTES = 10485760; // 10MB
+    public static final long CHAPTER_PDF_MAX_SIZE_IN_BYTES = 2097152; // 2MB
 }
