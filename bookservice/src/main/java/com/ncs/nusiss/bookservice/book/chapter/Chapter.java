@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.io.InputStream;
+import java.time.LocalDate;
 
 @Data
 @Document
@@ -26,4 +27,6 @@ public class Chapter {
     @NotNull
     private Integer chapterNo;
     private InputStream stream;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
 }

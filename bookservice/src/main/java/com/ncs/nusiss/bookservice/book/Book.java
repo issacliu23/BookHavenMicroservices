@@ -45,8 +45,8 @@ public class Book {
     @DBRef(lazy = true)
     private List<Chapter> chapterList = new ArrayList<>();
     private Binary coverImage;
-    private LocalDate createdDate = LocalDate.now();
-    private LocalDate updatedDate = LocalDate.now();
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
 
     // status
 

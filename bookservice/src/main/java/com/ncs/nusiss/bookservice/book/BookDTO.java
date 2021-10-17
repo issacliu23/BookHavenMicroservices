@@ -25,7 +25,8 @@ public class BookDTO {
     private List<Genre> genreList = new ArrayList<>();
     private Integer pointsRequiredForChapter;
     private Binary coverImage;
-    private Double review = 1.0;
+    private Double review = 5.0;
+    private List<Chapter> chapterList = new ArrayList<>();
     private LocalDate createdDate;
     private LocalDate updatedDate;
 }

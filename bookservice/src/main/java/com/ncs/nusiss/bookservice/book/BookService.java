@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +52,9 @@ public class BookService {
             try {
                 verifyCoverImage(coverImageFile);
                 book.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImageFile.getBytes()));
+                book.setCreatedDate(LocalDate.now());
+                book.setUpdatedDate(LocalDate.now());
+
                 return bookRepository.insert(book);
             }
             catch (IOException e) {
@@ -71,6 +75,8 @@ public class BookService {
         if(bookId!= null && chapter != null && chapterFile != null) {
             try {
                 verifyChapterFile(chapterFile);
+                chapter.setCreatedDate(LocalDate.now());
+                chapter.setUpdatedDate(LocalDate.now());
                 Optional<Book> optionalBook = bookRepository.findById(bookId);
                 if (optionalBook.isPresent()) {
                     Book book = optionalBook.get();
@@ -158,4 +164,12 @@ public class BookService {
     }
 
 
+    public BookDTO getBook(String bookId) throws BookNotFoundException {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if(optionalBook.isPresent()){
+            return modelMapper.map(optionalBook.get(), BookDTO.class);
+        }
+        else
+            throw new BookNotFoundException();
+    }
 }

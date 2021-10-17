@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
@@ -47,6 +48,7 @@ public class BookController {
     @PostMapping("/{bookId}")
     public ResponseEntity<?> updateBook(@PathVariable String bookId, @Valid @ModelAttribute Book newBook, @RequestParam(COVER_IMAGE_FILE_NAME) MultipartFile coverImage) {
         try {
+
             if(bookService.updateBook(bookId, newBook, coverImage))
                 return ResponseEntity.status(HttpStatus.OK).build();
             else
@@ -55,6 +57,16 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<?> getBookById(@PathVariable String bookId) {
+        try {
+            return new ResponseEntity<>(bookService.getBook(bookId), HttpStatus.OK);
+        }
+        catch (BookNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
