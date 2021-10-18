@@ -6,10 +6,11 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WalletRepository extends MongoRepository<Wallet, String> {
 
     @Query("{ 'userId' : ?0 }")
-    List<Wallet> findWalletByUserId(String userId);
+    Optional<Wallet> findWalletByUserId(String userId);
 }

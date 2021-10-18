@@ -2,6 +2,7 @@ package com.ncs.nusiss.paymentservice.wallet;
 
 import com.ncs.nusiss.paymentservice.entity.Wallet;
 
+import com.ncs.nusiss.paymentservice.exceptions.InsufficientWalletPointsException;
 import com.ncs.nusiss.paymentservice.exceptions.WalletExistsException;
 import com.ncs.nusiss.paymentservice.exceptions.WalletNotFoundException;
 import org.slf4j.Logger;
@@ -22,27 +23,46 @@ public class WalletService {
     private WalletRepository walletRepository;
 
     public Wallet createWallet(String userId) throws IllegalArgumentException, WalletExistsException {
-            if(userId!= null ) {
-                Optional<Wallet> optionalWallet = walletRepository.findById(userId);
-                if (!optionalWallet.isPresent()) {
-                    Wallet wallet = new Wallet();
-                    wallet.setUserId(userId);
-                    Wallet savedWallet = walletRepository.insert(wallet);
-                    return savedWallet;
-                } else
+        if (userId != null) {
+            Optional<Wallet> optionalWallet = walletRepository.findWalletByUserId(userId);
+            if (!optionalWallet.isPresent()) {
+                Wallet wallet = new Wallet();
+                wallet.setUserId(userId);
+                wallet.setCurrentPoints(0);
+                Wallet savedWallet = walletRepository.insert(wallet);
+                return savedWallet;
+            } else
                 throw new WalletExistsException();
-            }
-            else
-                throw new IllegalArgumentException();
+        } else
+            throw new IllegalArgumentException();
     }
 
     public Wallet getWalletByUserId(String userId) throws IllegalStateException, WalletNotFoundException {
         Wallet wallet = new Wallet();
-        List<Wallet> walletList = walletRepository.findWalletByUserId(userId);
-        if (!walletList.isEmpty()) {
-            wallet = walletList.get(0);
+        Optional<Wallet> optionalWallet = walletRepository.findWalletByUserId(userId);
+        if (optionalWallet.isPresent()) {
+            wallet = optionalWallet.get();
+            return wallet;
         } else
             throw new WalletNotFoundException();
-        return wallet;
+
+    }
+
+    public Wallet updateWalletPoints(String walletId, Integer points, Boolean plusPoints) throws WalletNotFoundException, InsufficientWalletPointsException {
+        Optional<Wallet> optionalWallet = walletRepository.findById(walletId);
+        if (optionalWallet.isPresent()) {
+            Wallet wallet = optionalWallet.get();
+            if (plusPoints)
+                wallet.setCurrentPoints(wallet.getCurrentPoints() + points);
+            else {
+                if (wallet.getCurrentPoints() - points < 0)
+                    throw new InsufficientWalletPointsException();
+                wallet.setCurrentPoints(wallet.getCurrentPoints() - points);
+            }
+            Wallet savedWallet = walletRepository.save(wallet);
+            return savedWallet;
+        } else
+            throw new WalletNotFoundException();
     }
 }
+

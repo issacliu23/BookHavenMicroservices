@@ -5,16 +5,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import javax.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class Wallet extends Auditable {
+public class ChapterPurchase extends Auditable {
     @Id
-    private String walletId;
+    private String chapterPurchaseId;
+    @NotNull
+    private String chapterId;
     @NotNull
     private String userId;
-    private Integer currentPoints;
-
+    @NotNull
+    private String transferId;
 }

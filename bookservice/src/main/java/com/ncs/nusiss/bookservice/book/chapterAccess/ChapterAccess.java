@@ -1,4 +1,4 @@
-package com.ncs.nusiss.bookservice.book.chapter;
+package com.ncs.nusiss.bookservice.book.chapterAccess;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ncs.nusiss.bookservice.book.Book;
@@ -13,19 +13,13 @@ import java.time.LocalDate;
 
 @Data
 @Document
-public class Chapter {
+public class ChapterAccess {
     @Id
+    private String chapterAccessId;
+    @NotNull
     private String chapterId;
-    @JsonIgnore
-    @DBRef(lazy = true)
-    private Book book;
     @NotNull
-    private String chapterTitle;
-    @NotNull
-    private Integer chapterNo;
-    private InputStream stream;
+    private String userId;
     private LocalDate createdDate;
     private LocalDate updatedDate;
-    private String authorId;
-    private Integer pointsRequiredForChapter;
 }

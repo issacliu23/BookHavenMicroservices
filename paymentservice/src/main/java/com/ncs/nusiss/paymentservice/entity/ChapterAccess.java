@@ -1,20 +1,21 @@
 package com.ncs.nusiss.paymentservice.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Document
-public class Wallet extends Auditable {
+public class ChapterAccess {
     @Id
-    private String walletId;
+    private String chapterAccessId;
+    @NotNull
+    private String chapterId;
     @NotNull
     private String userId;
-    private Integer currentPoints;
-
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
 }

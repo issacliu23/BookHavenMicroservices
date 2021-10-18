@@ -34,6 +34,8 @@ public class ChapterService {
         Optional<Chapter> chapterOptional = chapterRepository.findById(chapterId);
         if (chapterOptional.isPresent()) {
             chapter = chapterOptional.get();
+            chapter.setAuthorId(chapter.getBook().getAuthorId());
+            chapter.setPointsRequiredForChapter(chapter.getBook().getPointsRequiredForChapter());
         } else
             throw new ChapterNotFoundException();
         return chapter;

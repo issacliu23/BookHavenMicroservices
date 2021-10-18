@@ -20,5 +20,5 @@ public class ChapterPointsTransfer extends Auditable{
     @NotNull
     private String toWalletId;
     @NotNull
-    private Double pointsTransferred;
+    private Integer pointsTransferred;
 }
