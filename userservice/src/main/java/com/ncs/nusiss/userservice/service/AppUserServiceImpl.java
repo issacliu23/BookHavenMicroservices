@@ -75,7 +75,7 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
         appUserRepository.save(appUser);
         // Disable token generation and email sending
-        /*
+
         String token = UUID.randomUUID().toString();
 
         ConfirmationToken confirmationToken = new ConfirmationToken(
@@ -89,10 +89,10 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 //        emailSender.send(appUser.getEmail(), buildEmail(appUser.getEmail(), link));
 
         return token;
-        */
-        appUserRepository.enableAppUser(appUser.getEmail());
 
-        return "User " + appUser.getEmail() + " created successfully";
+//        appUserRepository.enableAppUser(appUser.getEmail());
+//
+//        return "User " + appUser.getEmail() + " created successfully";
     }
 
     @Transactional
