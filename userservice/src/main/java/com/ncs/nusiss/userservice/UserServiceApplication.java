@@ -23,6 +23,7 @@ public class UserServiceApplication {
 		return new BCryptPasswordEncoder();
 	}
 
+	/*
 	@Bean
 	CommandLineRunner run (AppUserService appUserService) {
 		return args -> {
@@ -32,5 +33,6 @@ public class UserServiceApplication {
 			appUserService.signUpUser(new AppUser("willsmith@gmail.com", "1234"));
 		};
 	}
+	*/
 
 }
