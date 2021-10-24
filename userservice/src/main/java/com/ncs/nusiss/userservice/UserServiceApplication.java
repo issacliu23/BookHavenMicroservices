@@ -24,14 +24,17 @@ public class UserServiceApplication {
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-//	@Bean
-//	CommandLineRunner run (AppUserService appUserService) {
-//		return args -> {
-//			appUserService.signUpUser(new AppUser("johndoe@gmail.com", "1234"));
-//			appUserService.signUpUser(new AppUser("joebiden@gmail.com", "1234"));
-//			appUserService.signUpUser(new AppUser("donaldtrump@gmail.com", "1234"));
-//			appUserService.signUpUser(new AppUser("willsmith@gmail.com", "1234"));
-//		};
-//	}
+
+	/*
+	@Bean
+	CommandLineRunner run (AppUserService appUserService) {
+		return args -> {
+			appUserService.signUpUser(new AppUser("johndoe@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser("joebiden@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser("donaldtrump@gmail.com", "1234"));
+			appUserService.signUpUser(new AppUser("willsmith@gmail.com", "1234"));
+		};
+	}
+	*/
 
 }
