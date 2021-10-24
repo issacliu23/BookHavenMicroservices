@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ncs.nusiss.userservice.entity.AppUser;
 import com.ncs.nusiss.userservice.service.AppUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,16 +46,16 @@ public class AppUserController {
     public ResponseEntity<List<AppUser>> getUsers() {
         return ResponseEntity.ok().body(appUserService.getUsers());
     }
-
     @PostMapping("/user/sign-up")
+    public String  signUpUser(@RequestBody AppUser appUser) {
+        return appUserService.signUpUser(appUser);
+    }
     /*
     public ResponseEntity<AppUser> signUpUser(@RequestBody AppUser appUser) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/sign-up").toUriString());
         return ResponseEntity.created(uri).body(appUserService.signUpUser(appUser));
     }*/
-    public String signUpUser(@RequestBody AppUser appUser) {
-        return appUserService.signUpUser(appUser);
-    }
+
 
     @GetMapping("/user/sign-up/confirm")
     public String confirm(@RequestParam("token") String token) {

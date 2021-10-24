@@ -9,6 +9,8 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -22,15 +24,14 @@ public class UserServiceApplication {
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
-	@Bean
-	CommandLineRunner run (AppUserService appUserService) {
-		return args -> {
-			appUserService.signUpUser(new AppUser("johndoe@gmail.com", "1234"));
-			appUserService.signUpUser(new AppUser("joebiden@gmail.com", "1234"));
-			appUserService.signUpUser(new AppUser("donaldtrump@gmail.com", "1234"));
-			appUserService.signUpUser(new AppUser("willsmith@gmail.com", "1234"));
-		};
-	}
+//	@Bean
+//	CommandLineRunner run (AppUserService appUserService) {
+//		return args -> {
+//			appUserService.signUpUser(new AppUser("johndoe@gmail.com", "1234"));
+//			appUserService.signUpUser(new AppUser("joebiden@gmail.com", "1234"));
+//			appUserService.signUpUser(new AppUser("donaldtrump@gmail.com", "1234"));
+//			appUserService.signUpUser(new AppUser("willsmith@gmail.com", "1234"));
+//		};
+//	}
 
 }

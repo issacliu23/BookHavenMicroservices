@@ -68,7 +68,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         if(userExists) {
             throw new IllegalStateException("email already taken");
         }
-
+        appUser.setEnabled(true);
+        appUser.setLocked(false);
         log.info("Signing up new User {} to the Database", appUser.getEmail());
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
 
@@ -83,8 +84,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
         // TODO: SEND EMAIL
-        String link = "http://" + address + ":" + port + "/api/user/sign-up/confirm?token=" + token;
-        emailSender.send(appUser.getEmail(), buildEmail(appUser.getEmail(), link));
+//        String link = "http://" + address + ":" + port + "/api/user/sign-up/confirm?token=" + token;
+//        emailSender.send(appUser.getEmail(), buildEmail(appUser.getEmail(), link));
 
         return token;
     }

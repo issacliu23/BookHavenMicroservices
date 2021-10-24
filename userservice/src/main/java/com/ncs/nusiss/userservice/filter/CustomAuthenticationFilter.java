@@ -2,8 +2,12 @@ package com.ncs.nusiss.userservice.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.CharStreams;
+import com.ncs.nusiss.userservice.entity.AppUser;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,8 +39,20 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String email = null;
+        String password = null;
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                AppUser user = objectMapper.readValue(request.getReader().lines().collect(Collectors.joining(System.lineSeparator())), new TypeReference<AppUser>(){});
+                email = user.getEmail();
+                password = user.getPassword();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+//        String email = request.getParameter("email");
+//        String password = request.getParameter("password");
         log.info("Email is: {}", email);
         log.info("Password is: {}", password);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
