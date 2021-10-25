@@ -4,12 +4,15 @@ import com.ncs.nusiss.bookservice.book.chapter.Chapter;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
+import com.ncs.nusiss.bookservice.securityconfig.JwtFilter;
+import com.ncs.nusiss.bookservice.securityconfig.JwtUtils;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +26,7 @@ import static com.ncs.nusiss.bookservice.BookServiceConstants.CHAPTER_FILE_NAME;
 import static com.ncs.nusiss.bookservice.BookServiceConstants.COVER_IMAGE_FILE_NAME;
 
 @RestController
-@RequestMapping(path = "book")
+@RequestMapping(path = "api/book")
 public class BookController {
     private final Logger logger = LoggerFactory.getLogger(BookController.class);
 
@@ -32,6 +35,8 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<?> publishBook(@Valid @ModelAttribute Book book, @RequestParam(COVER_IMAGE_FILE_NAME) MultipartFile coverImage) {
+        System.out.println(JwtUtils.getUsernameFromJwt());
+
         try {
             Book createdBook = bookService.createBook(book, coverImage);
             if (createdBook != null)

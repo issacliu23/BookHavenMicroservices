@@ -43,6 +43,8 @@ public class AppUser implements UserDetails {
         return new HashSet<GrantedAuthority>();
     }
 
+    public Long getId(){ return id; }
+
     @Override
     public String getUsername() {
         return email;
