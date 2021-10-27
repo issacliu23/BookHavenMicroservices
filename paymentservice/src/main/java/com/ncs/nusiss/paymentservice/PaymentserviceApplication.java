@@ -6,15 +6,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-public class PaymentserviceApplication {
+public class PaymentServiceApplication {
 
 	@Bean
-	public RestTemplate getRestTRemplate() {
+	public RestTemplate getRestTemplate() {
 		return new RestTemplate();
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(PaymentserviceApplication.class, args);
+		SpringApplication.run(PaymentServiceApplication.class, args);
 	}
 
 }

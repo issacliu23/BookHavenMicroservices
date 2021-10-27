@@ -47,6 +47,17 @@ public class WalletService {
             throw new WalletNotFoundException();
 
     }
+    public Wallet updateWalletPointsWithUserId(String userId, Integer points, Boolean plusPoints) throws WalletNotFoundException, InsufficientWalletPointsException {
+        Optional<Wallet> optionalWallet = walletRepository.findWalletByUserId(userId);
+        if(optionalWallet.isPresent()){
+            return updateWalletPoints(optionalWallet.get().getWalletId(), points, plusPoints);
+        }
+        else {
+            throw new WalletNotFoundException();
+        }
+    }
+
+
 
     public Wallet updateWalletPoints(String walletId, Integer points, Boolean plusPoints) throws WalletNotFoundException, InsufficientWalletPointsException {
         Optional<Wallet> optionalWallet = walletRepository.findById(walletId);

@@ -50,6 +50,15 @@ public class Book {
 
     // status
 
+    public void setAuthorName(String name) {
+        if(name.contains("@")) {
+            this.authorName = name.substring(0, name.indexOf("@"));
+        }
+        else {
+            this.authorName = name;
+        }
+    }
+
     public void addChapter(Chapter c) throws BookNotFoundException {
         if(this.bookId != null) {
             chapterList.add(c);

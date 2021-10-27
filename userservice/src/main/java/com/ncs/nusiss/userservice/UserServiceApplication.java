@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,6 +26,10 @@ public class UserServiceApplication {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Bean
+	public WebClient.Builder getWebClientBuilder() {
+		return WebClient.builder();
+	}
 	/*
 	@Bean
 	CommandLineRunner run (AppUserService appUserService) {

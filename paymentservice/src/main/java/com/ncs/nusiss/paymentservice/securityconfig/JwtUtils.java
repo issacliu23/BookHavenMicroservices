@@ -1,4 +1,4 @@
-package com.ncs.nusiss.bookservice.securityconfig;
+package com.ncs.nusiss.paymentservice.securityconfig;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
