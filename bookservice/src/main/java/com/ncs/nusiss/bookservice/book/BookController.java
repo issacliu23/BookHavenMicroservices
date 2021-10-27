@@ -35,8 +35,6 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<?> publishBook(@Valid @ModelAttribute Book book, @RequestParam(COVER_IMAGE_FILE_NAME) MultipartFile coverImage) {
-        System.out.println(JwtUtils.getUsernameFromJwt());
-
         try {
             Book createdBook = bookService.createBook(book, coverImage);
             if (createdBook != null)
@@ -73,6 +71,11 @@ public class BookController {
         catch (BookNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/test")
+    public String getSomething() {
+        return "test";
     }
 
     @PostMapping("/{bookId}/chapter")

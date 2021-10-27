@@ -7,6 +7,7 @@ import com.ncs.nusiss.bookservice.book.chapter.ChapterRepository;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
+import com.ncs.nusiss.bookservice.securityconfig.JwtUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -48,13 +49,15 @@ public class BookService {
     private GridFsOperations gridFsOperations;
 
     public Book createBook(Book book, MultipartFile coverImageFile) throws SizeLimitExceededException, IncorrectImageDimensionsException, IncorrectFileExtensionException, IllegalArgumentException {
+        String authorId = JwtUtils.getUsernameFromJwt();
         if(book != null && coverImageFile != null) {
             try {
                 verifyCoverImage(coverImageFile);
+                book.setAuthorId(authorId);
+                book.setAuthorName(authorId);
                 book.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImageFile.getBytes()));
                 book.setCreatedDate(LocalDate.now());
                 book.setUpdatedDate(LocalDate.now());
-
                 return bookRepository.insert(book);
             }
             catch (IOException e) {

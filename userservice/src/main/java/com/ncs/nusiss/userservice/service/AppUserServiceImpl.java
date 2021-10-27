@@ -2,9 +2,12 @@ package com.ncs.nusiss.userservice.service;
 
 import com.ncs.nusiss.userservice.entity.AppUser;
 import com.ncs.nusiss.userservice.entity.ConfirmationToken;
+import com.ncs.nusiss.userservice.entity.Wallet;
+import com.ncs.nusiss.userservice.events.UserDomainEvents;
 import com.ncs.nusiss.userservice.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,6 +35,9 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     private String address;
     @Value("${server.port}")
     private String port;
+
+    @Autowired
+    private UserDomainEvents userDomainEvents;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -83,6 +89,8 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
         );
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
+        // Call CreateWallet by triggering event
+        Wallet wallet = userDomainEvents.userCreated(appUser.getEmail());
 
         // TODO: SEND EMAIL
 //        String link = "http://" + address + ":" + port + "/api/user/sign-up/confirm?token=" + token;
