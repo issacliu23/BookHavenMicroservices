@@ -7,7 +7,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ncs.nusiss.userservice.entity.AppUser;
 import com.ncs.nusiss.userservice.service.AppUserService;
+import com.ncs.nusiss.userservice.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,8 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RequiredArgsConstructor
 public class AppUserController {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AppUserController.class);
+
     private final AppUserService appUserService;
 
     @GetMapping("/home")
@@ -48,6 +53,8 @@ public class AppUserController {
     }
     @PostMapping("/user/sign-up")
     public String  signUpUser(@RequestBody AppUser appUser) {
+        LOGGER.info("HELLO");
+        LOGGER.info(appUser.getEmail());
         return appUserService.signUpUser(appUser);
     }
     /*

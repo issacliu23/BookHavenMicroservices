@@ -28,8 +28,6 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
-    @Value("${server.address}")
-    private String address;
     @Value("${server.port}")
     private String port;
 
