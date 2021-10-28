@@ -55,7 +55,7 @@ public class BookService {
         String authorId = JwtUtils.getUsernameFromJwt();
         if(book != null && coverImageFile != null) {
             try {
-                verifyCoverImage(coverImageFile);
+//                verifyCoverImage(coverImageFile);
                 book.setAuthorId(authorId);
                 book.setAuthorName(authorId);
                 book.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImageFile.getBytes()));
