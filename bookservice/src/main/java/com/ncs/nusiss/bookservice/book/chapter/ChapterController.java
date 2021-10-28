@@ -35,12 +35,12 @@ public class ChapterController {
     }
 
     @GetMapping("/chapter/stream/{chapterId}")
-    public void getChapterContent(@PathVariable(value = "chapterId") String chapterId, HttpServletResponse response) throws Exception {
+    public void getChapterContent(@PathVariable(value = "chapterId") String chapterId) throws Exception {
         logger.info("CHAPTER CONTENT STREAM HIT");
         try {
             Chapter chapter = chapterService.getChapterContent(chapterId);
-            if (chapter != null)
-                FileCopyUtils.copy(chapter.getStream(), response.getOutputStream());
+            if (chapter != null) {}
+//                FileCopyUtils.copy(chapter.getStream(), response.getOutputStream());
         } catch (ChapterNotFoundException | IllegalStateException  | IOException e)  {
             e.printStackTrace();
         }
