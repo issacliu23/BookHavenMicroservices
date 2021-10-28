@@ -13,6 +13,7 @@ public class ChapterDTO {
     private String chapterId;
     private String chapterTitle;
     private Integer chapterNo;
+    private Boolean isLocked = true;
     private LocalDate createdDate;
     private LocalDate updatedDate;
 }

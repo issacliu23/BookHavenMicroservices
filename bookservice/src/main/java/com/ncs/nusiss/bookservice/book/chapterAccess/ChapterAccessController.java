@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping
+@RequestMapping(path = "api")
 public class ChapterAccessController {
 
     @Autowired
@@ -39,7 +39,7 @@ public class ChapterAccessController {
         try {
             Chapter chapter = chapterService.getChapterDetail(chapterId);
             if (chapter != null) {
-                ChapterAccess chapterAccess = chapterAccessService.addChapterAccess(chapterId, userId);
+                ChapterAccess chapterAccess = chapterAccessService.addChapterAccess(chapter, userId);
                 return new ResponseEntity<>(chapterAccess, HttpStatus.OK);
             } else
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

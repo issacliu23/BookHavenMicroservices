@@ -53,8 +53,6 @@ public class AppUserController {
     }
     @PostMapping("/user/sign-up")
     public String  signUpUser(@RequestBody AppUser appUser) {
-        LOGGER.info("HELLO");
-        LOGGER.info(appUser.getEmail());
         return appUserService.signUpUser(appUser);
     }
     /*

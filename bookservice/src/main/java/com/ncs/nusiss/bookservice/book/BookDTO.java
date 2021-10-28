@@ -1,6 +1,7 @@
 package com.ncs.nusiss.bookservice.book;
 
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
+import com.ncs.nusiss.bookservice.book.chapter.ChapterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,7 @@ public class BookDTO {
     private Integer pointsRequiredForChapter;
     private Binary coverImage;
     private Double review = 5.0;
-    private List<Chapter> chapterList = new ArrayList<>();
+    private List<ChapterDTO> chapterList = new ArrayList<>();
     private LocalDate createdDate;
     private LocalDate updatedDate;
 }

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RestController
-@RequestMapping
+@RequestMapping(path = "api")
 public class ChapterController {
 
     @Autowired

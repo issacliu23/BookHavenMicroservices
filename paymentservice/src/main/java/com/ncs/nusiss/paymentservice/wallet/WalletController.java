@@ -35,7 +35,9 @@ public class WalletController {
     @GetMapping()
     public ResponseEntity<?> getWallet() {
         try {
+            System.out.println(JwtUtils.getUsernameFromJwt());
             Wallet wallet = walletService.getWalletByUserId(JwtUtils.getUsernameFromJwt());
+
             if (wallet != null)
                 return new ResponseEntity<>(wallet, HttpStatus.OK);
             else
