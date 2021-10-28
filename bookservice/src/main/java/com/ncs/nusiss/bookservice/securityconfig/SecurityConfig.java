@@ -30,6 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             return cors;
         });
 
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/health-check").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/book/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
