@@ -79,14 +79,15 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 
         appUserRepository.save(appUser);
         // Disable token generation and email sending
-
+        /*
         String token = UUID.randomUUID().toString();
 
         ConfirmationToken confirmationToken = new ConfirmationToken(
                 token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), appUser
         );
-
         confirmationTokenService.saveConfirmationToken(confirmationToken);
+         */
+
         // Call CreateWallet by triggering event
         Wallet wallet = userDomainEvents.userCreated(appUser.getEmail());
 
@@ -94,11 +95,11 @@ public class AppUserServiceImpl implements AppUserService, UserDetailsService {
 //        String link = "http://" + address + ":" + port + "/api/user/sign-up/confirm?token=" + token;
 //        emailSender.send(appUser.getEmail(), buildEmail(appUser.getEmail(), link));
 
-        return token;
+        // return token;
 
 //        appUserRepository.enableAppUser(appUser.getEmail());
 //
-//        return "User " + appUser.getEmail() + " created successfully";
+        return "User " + appUser.getEmail() + " created successfully";
     }
 
     @Transactional

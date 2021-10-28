@@ -9,15 +9,25 @@ import com.ncs.nusiss.paymentservice.wallet.WalletService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.http.HttpHeaders;
 import java.util.Optional;
 
 @Service
 public class ChapterPurchaseService {
 
     private final Logger logger = LoggerFactory.getLogger(ChapterPurchaseService.class);
+    @Value("${domain.bookservice.url}")
+    public String bookServiceUrl;
+
+    @Value("${domain.paymentservice.url}")
+    public String paymentServiceUrl;
 
     @Autowired
     private ChapterPurchaseRepository chapterPurchaseRepository;
@@ -34,11 +44,16 @@ public class ChapterPurchaseService {
     @Autowired
     WalletService walletService;
 
-    public ChapterPurchase purchaseChapter(String chapterId, String userId) throws IllegalArgumentException, ChapterPurchasedException, WalletNotFoundException, InsufficientWalletPointsException {
+    public ChapterPurchase purchaseChapter(String chapterId, String userId, String authorizationHeader) throws IllegalArgumentException, ChapterPurchasedException, WalletNotFoundException, InsufficientWalletPointsException {
         if (chapterId != null && userId != null) {
             Optional<ChapterPurchase> optionalPurchase = chapterPurchaseRepository.findByChapterIdAndUserId(chapterId, userId);
             if (!optionalPurchase.isPresent()) {
-                Chapter chapter = restTemplate.getForObject("http://localhost:8081/chapter/" + chapterId, Chapter.class);
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", authorizationHeader);
+                HttpEntity entity = new HttpEntity(headers);
+                ResponseEntity<Chapter> response = restTemplate.exchange(bookServiceUrl+"/chapter/" + chapterId, HttpMethod.GET, entity, Chapter.class);
+                Chapter chapter = response.getBody();
+//                Chapter chapter = restTemplate.getForObject(bookServiceUrl+"/chapter/" + chapterId, Chapter.class);
                 Integer pointsRequired = chapter.getPointsRequiredForChapter();
 
                 Wallet userWallet = walletService.getWalletByUserId(userId);
@@ -63,7 +78,8 @@ public class ChapterPurchaseService {
                 ChapterAccess chapterAccess = new ChapterAccess();
                 chapterAccess.setChapterId(chapterId);
                 chapterAccess.setUserId(userId);
-                ChapterAccess savedChapterAccess = restTemplate.postForObject("http://localhost:8081/chapterAccess/" + chapterId + "/" + userId, chapterAccess, ChapterAccess.class);
+                HttpEntity<ChapterAccess> request = new HttpEntity<>(chapterAccess, headers);
+                ChapterAccess savedChapterAccess = restTemplate.postForObject(bookServiceUrl+"/chapterAccess/" + chapterId + "/" + userId, request, ChapterAccess.class);
 
                 ChapterPurchase chapterPurchase = new ChapterPurchase();
                 chapterPurchase.setUserId(userId);

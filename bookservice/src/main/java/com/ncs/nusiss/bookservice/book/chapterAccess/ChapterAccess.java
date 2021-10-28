@@ -18,6 +18,8 @@ public class ChapterAccess {
     private String chapterAccessId;
     @NotNull
     private String chapterId;
+
+    private String bookId;
     @NotNull
     private String userId;
     private LocalDate createdDate;

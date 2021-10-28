@@ -36,6 +36,7 @@ public class WalletController {
     public ResponseEntity<?> getWallet() {
         try {
             Wallet wallet = walletService.getWalletByUserId(JwtUtils.getUsernameFromJwt());
+
             if (wallet != null)
                 return new ResponseEntity<>(wallet, HttpStatus.OK);
             else

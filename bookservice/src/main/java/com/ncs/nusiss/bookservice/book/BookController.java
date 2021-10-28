@@ -66,7 +66,13 @@ public class BookController {
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookById(@PathVariable String bookId) {
         try {
-            return new ResponseEntity<>(bookService.getBook(bookId), HttpStatus.OK);
+            String username = JwtUtils.getUsernameFromJwt();
+            if(username.isEmpty() || username.equalsIgnoreCase("anonymoususer")) {
+                return new ResponseEntity<>(bookService.getBook(bookId), HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(bookService.getBookForLoginUsers(bookId, username), HttpStatus.OK);
+            }
         }
         catch (BookNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

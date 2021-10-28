@@ -4,6 +4,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.ncs.nusiss.bookservice.book.chapter.Chapter;
 import com.ncs.nusiss.bookservice.book.chapter.ChapterRepository;
+import com.ncs.nusiss.bookservice.book.chapterAccess.ChapterAccess;
+import com.ncs.nusiss.bookservice.book.chapterAccess.ChapterAccessService;
 import com.ncs.nusiss.bookservice.exceptions.BookNotFoundException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectImageDimensionsException;
 import com.ncs.nusiss.bookservice.exceptions.IncorrectFileExtensionException;
@@ -42,7 +44,8 @@ public class BookService {
     private BookRepository bookRepository;
     @Autowired
     private ChapterRepository chapterRepository;
-
+    @Autowired
+    private ChapterAccessService chapterAccessService;
     @Autowired
     private GridFsTemplate gridFsTemplate;
     @Autowired
@@ -77,7 +80,7 @@ public class BookService {
     public Chapter addChapter(String bookId, Chapter chapter, MultipartFile chapterFile) throws SizeLimitExceededException, BookNotFoundException, IncorrectFileExtensionException, IllegalArgumentException {
         if(bookId!= null && chapter != null && chapterFile != null) {
             try {
-                verifyChapterFile(chapterFile);
+                 verifyChapterFile(chapterFile);
                 chapter.setCreatedDate(LocalDate.now());
                 chapter.setUpdatedDate(LocalDate.now());
                 Optional<Book> optionalBook = bookRepository.findById(bookId);
@@ -170,7 +173,41 @@ public class BookService {
     public BookDTO getBook(String bookId) throws BookNotFoundException {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
         if(optionalBook.isPresent()){
-            return modelMapper.map(optionalBook.get(), BookDTO.class);
+            BookDTO bookDto = modelMapper.map(optionalBook.get(), BookDTO.class);
+            if(bookDto.getChapterList().size() > 0) {
+                bookDto.getChapterList().forEach(c -> {
+                    if(c.getChapterNo() <= 3) { // number of free chapters, default isLocked = true
+                        c.setIsLocked(false);
+                    }
+                });
+            }
+            return bookDto;
+        }
+        else
+            throw new BookNotFoundException();
+    }
+
+    public BookDTO getBookForLoginUsers(String bookId, String userId) throws BookNotFoundException {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if(optionalBook.isPresent()){
+            BookDTO bookDto = modelMapper.map(optionalBook.get(), BookDTO.class);
+            if(bookDto.getChapterList().size() > 0) {
+                bookDto.getChapterList().forEach(c -> {
+                    if(c.getChapterNo() <= 3) { // number of free chapters, default isLocked = true
+                        c.setIsLocked(false);
+                    }
+                });
+            }
+
+            List<ChapterAccess> userChapterAccessList = chapterAccessService.getChapterAccessByBookId(bookId, userId);
+            if(userChapterAccessList != null && userChapterAccessList.size() > 0) {
+                bookDto.getChapterList().forEach(c -> {
+                    if(userChapterAccessList.stream().map(ChapterAccess::getChapterId).collect(Collectors.toList()).contains(c.getChapterId())) {
+                        c.setIsLocked(false);
+                    }
+                });
+            }
+            return bookDto;
         }
         else
             throw new BookNotFoundException();
