@@ -34,31 +34,31 @@ public class ChapterController {
         }
     }
 
-    @GetMapping("/chapter/stream/{chapterId}")
-    public void getChapterContent(@PathVariable(value = "chapterId") String chapterId) throws Exception {
+    @GetMapping("/chapter/content/{chapterId}")
+    public void getChapterContent(@PathVariable(value = "chapterId") String chapterId, HttpServletResponse response) throws Exception {
         logger.info("CHAPTER CONTENT STREAM HIT");
         try {
             Chapter chapter = chapterService.getChapterContent(chapterId);
             if (chapter != null) {}
-//                FileCopyUtils.copy(chapter.getStream(), response.getOutputStream());
+                FileCopyUtils.copy(chapter.getStream(), response.getOutputStream());
         } catch (ChapterNotFoundException | IllegalStateException  | IOException e)  {
             e.printStackTrace();
         }
     }
 
-    @GetMapping("/chapter/stream2/{chapterId}")
-    public ResponseEntity<?> getChapterContent2(@PathVariable(value = "chapterId") String chapterId, HttpServletResponse response) throws Exception {
-        try {
-            Chapter chapter = chapterService.getChapterContent(chapterId);
-            if (chapter != null)
-                return new ResponseEntity<>(chapter, HttpStatus.OK);
-            else
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-        } catch (ChapterNotFoundException | IllegalStateException  | IOException e)  {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/chapter/content/{chapterId}")
+//    public ResponseEntity<?> getChapterContent2(@PathVariable(value = "chapterId") String chapterId, HttpServletResponse response) throws Exception {
+//        try {
+//            Chapter chapter = chapterService.getChapterContent(chapterId);
+//            if (chapter != null)
+//                return new ResponseEntity<>(chapter, HttpStatus.OK);
+//            else
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//
+//        } catch (ChapterNotFoundException | IllegalStateException  | IOException e)  {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    }
 
 }

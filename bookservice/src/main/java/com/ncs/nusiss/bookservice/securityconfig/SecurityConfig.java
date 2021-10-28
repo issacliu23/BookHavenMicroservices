@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/health-check").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/book/**").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/chapter/stream/**").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/chapter/content/**").permitAll();
 
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
