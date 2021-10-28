@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class BookService {
         String authorId = JwtUtils.getUsernameFromJwt();
         if(book != null && coverImageFile != null) {
             try {
-//                verifyCoverImage(coverImageFile);
+                verifyCoverImage(coverImageFile);
                 book.setAuthorId(authorId);
                 book.setAuthorName(authorId);
                 book.setCoverImage(new Binary(BsonBinarySubType.BINARY, coverImageFile.getBytes()));
