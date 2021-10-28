@@ -1,6 +1,9 @@
 package com.ncs.nusiss.bookservice.book.chapter;
 
+import com.ncs.nusiss.bookservice.book.BookController;
 import com.ncs.nusiss.bookservice.exceptions.ChapterNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping(path = "api")
 public class ChapterController {
+    private final Logger logger = LoggerFactory.getLogger(ChapterController.class);
 
     @Autowired
     private ChapterService chapterService;
@@ -32,6 +36,7 @@ public class ChapterController {
 
     @GetMapping("/chapter/stream/{chapterId}")
     public void getChapterContent(@PathVariable(value = "chapterId") String chapterId, HttpServletResponse response) throws Exception {
+        logger.info("CHAPTER CONTENT STREAM HIT");
         try {
             Chapter chapter = chapterService.getChapterContent(chapterId);
             if (chapter != null)

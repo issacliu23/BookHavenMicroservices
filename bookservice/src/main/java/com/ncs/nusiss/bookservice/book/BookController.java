@@ -35,13 +35,7 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<?> publishBook(@Valid @ModelAttribute Book book, @RequestParam(COVER_IMAGE_FILE_NAME) MultipartFile coverImage) {
-        logger.info("image file standard name:" + COVER_IMAGE_FILE_NAME);
-        if(coverImage != null) {
-            logger.info(coverImage.getName());
-        }
-        else {
-            logger.info("CoverImage is null");
-        }
+
         try {
             Book createdBook = bookService.createBook(book, coverImage);
             if (createdBook != null)
